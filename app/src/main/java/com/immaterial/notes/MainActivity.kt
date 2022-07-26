@@ -8,12 +8,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.immaterial.notes.models.Note
 import com.immaterial.notes.services.NotesService
 import com.immaterial.notes.ui.theme.NotesAndroidTheme
 import com.immaterial.notes.viewmodels.NotesViewModel
+import io.ktor.client.*
+import io.ktor.client.engine.okhttp.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.gson.*
 import kotlinx.coroutines.*
 import kotlin.coroutines.suspendCoroutine
 
@@ -25,6 +30,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 //        val notesViewModel = NotesViewModel()
         val notesService = NotesService()
+        val noteText = mutableStateOf("N/A")
         setContent {
             NotesAndroidTheme {
                 // A surface container using the 'background' color from the theme
@@ -32,18 +38,23 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+//                    Greeting("Android")
 //                    NotesList(notesViewModel.notes.value)
+                    NoteText(noteText.value)
                 }
             }
         }
         ioScope.launch {
             notesService.findNote(1)
             val note = notesService.findNote(1)
-            // TODO: try updating a ViewModel here
-            println(note?.title)
+            noteText.value = note?.body!!
         }
     }
+}
+
+@Composable
+fun NoteText(noteBody: String) {
+    Text(noteBody)
 }
 
 @Composable
