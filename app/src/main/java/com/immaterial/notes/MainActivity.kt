@@ -13,7 +13,12 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.immaterial.notes.models.Note
+import com.immaterial.notes.screens.NoteEdit
+import com.immaterial.notes.screens.NotesList
 import com.immaterial.notes.services.NotesService
 import com.immaterial.notes.ui.theme.NotesAndroidTheme
 import com.immaterial.notes.viewmodels.NotesViewModel
@@ -30,54 +35,32 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val notesViewModel = NotesViewModel()
         val notesService = NotesService()
-        val noteText = mutableStateOf("N/A")
-        setContent {
-            NotesAndroidTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    NotesList(notesViewModel)
-                }
-            }
-        }
         ioScope.launch {
             val lstNotes = notesService.listNotes()
             notesViewModel.setNotes(lstNotes)
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun NotesList(notesViewModel: NotesViewModel) {
-    val notesState = notesViewModel.notes.observeAsState()
-    Column(
-        modifier = Modifier.padding(16.dp)
-    ) {
-        notesState.value?.forEach {
-            NoteCard(it)
-        }
-    }
-}
-
-@ExperimentalMaterial3Api
-@Composable
-fun NoteCard(note: Note) {
-    Card(
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth()
-    ) {
-        Column {
-            Text(note.title)
-            Text(note.body)
+        setContent {
+            NotesApp(notesService, notesViewModel)
         }
     }
 }
 
 @Composable
-fun NoteText(noteBody: String) {
-    Text(noteBody)
+fun NotesApp(notesService: NotesService, notesViewModel: NotesViewModel) {
+    val navController = rememberNavController()
+    NotesAndroidTheme {
+        // A surface container using the 'background' color from the theme
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            NavHost(
+                navController = navController,
+                startDestination = "notesList"
+            ) {
+                composable("notesList") { NotesList(notesViewModel, navController) }
+                composable("noteEdit") { NoteEdit() }
+            }
+        }
+    }
 }
