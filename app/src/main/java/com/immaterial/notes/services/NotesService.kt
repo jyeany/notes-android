@@ -6,6 +6,7 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
+import io.ktor.http.*
 import io.ktor.serialization.gson.*
 
 class NotesService() {
@@ -17,13 +18,13 @@ class NotesService() {
         }
     }
 
-//    suspend fun listNotes() {
-//        val response = client.request("http://localhost:8080/notes") {
-//            method = HttpMethod.Get
-//        }
-//        val notes: List<Note> = response.body()
-//        notesViewModel.setNotes(notes)
-//    }
+    suspend fun listNotes(): List<Note> {
+        val url = "${baseUrl}/notes"
+        val response = client.request(url) {
+            method = HttpMethod.Get
+        }
+        return response.body()
+    }
 
     suspend fun findNote(id: Int): Note? {
         val url = "${baseUrl}/notes/${id}"

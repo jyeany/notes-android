@@ -13,7 +13,7 @@ class NotesViewModel : ViewModel() {
         get() = _notes
 
     fun setNotes(value: List<Note>) {
-        _notes.value = value
+        _notes.postValue(value)
     }
 
 }
